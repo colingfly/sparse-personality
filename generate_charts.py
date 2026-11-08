@@ -9,11 +9,11 @@ os.makedirs('charts', exist_ok=True)
 
 # ── Style ──
 plt.style.use('dark_background')
-CANE_GREEN = '#00E676'
-CANE_RED = '#FF5252'
-CANE_BLUE = '#448AFF'
-CANE_ORANGE = '#FF9100'
-CANE_PURPLE = '#B388FF'
+SPARSE_GREEN = '#00E676'
+SPARSE_RED = '#FF5252'
+SPARSE_BLUE = '#448AFF'
+SPARSE_ORANGE = '#FF9100'
+SPARSE_PURPLE = '#B388FF'
 BG_COLOR = '#0D1117'
 
 # ═══════════════════════════════════════════════════
@@ -26,7 +26,7 @@ models = ['Trinity-Large-Thinking', 'Qwen-2.5-72B', 'OLMo-2-32B', 'DeepSeek-V3',
 avgs = [91.3, 90.7, 90.5, 90.0, 88.2, 87.5]
 fails = [13, 10, 11, 19, 22, 16]
 
-colors = [CANE_GREEN if a >= 90 else CANE_ORANGE if a >= 88 else CANE_RED for a in avgs]
+colors = [SPARSE_GREEN if a >= 90 else SPARSE_ORANGE if a >= 88 else SPARSE_RED for a in avgs]
 bars = ax.barh(range(len(models)), avgs, color=colors, height=0.6, alpha=0.9, edgecolor='white', linewidth=0.5)
 
 for i, (avg, fail) in enumerate(zip(avgs, fails)):
@@ -37,14 +37,14 @@ ax.set_yticks(range(len(models)))
 ax.set_yticklabels(models, fontsize=13, fontweight='bold')
 ax.set_xlim(80, 95)
 ax.set_xlabel('Average Score (300 questions, 6 traits)', fontsize=12, color='gray')
-ax.set_title('cane-personality Behavioral Leaderboard', fontsize=18, fontweight='bold', pad=15, color='white')
+ax.set_title('sparse-personality Behavioral Leaderboard', fontsize=18, fontweight='bold', pad=15, color='white')
 ax.invert_yaxis()
 ax.spines['top'].set_visible(False)
 ax.spines['right'].set_visible(False)
 ax.spines['bottom'].set_color('gray')
 ax.spines['left'].set_color('gray')
 ax.tick_params(colors='gray')
-ax.text(0.99, 0.02, 'cane-personality v0.2.0 | pip install cane-personality', transform=ax.transAxes, fontsize=8, color='gray', ha='right', style='italic')
+ax.text(0.99, 0.02, 'sparse-personality v0.2.0 | pip install sparse-personality', transform=ax.transAxes, fontsize=8, color='gray', ha='right', style='italic')
 plt.tight_layout()
 plt.savefig('charts/leaderboard.png', dpi=200, bbox_inches='tight', facecolor=BG_COLOR)
 plt.close()
@@ -69,12 +69,12 @@ after =  [92, 100, 80, 92, 85, 68, 92, 95, 95, 0, 0, 0, 0, 0, 0, 0]
 x = np.arange(len(labels))
 width = 0.35
 
-bars1 = ax.bar(x - width/2, before, width, label='Before DPO', color=CANE_RED, alpha=0.8, edgecolor='white', linewidth=0.5)
-bars2 = ax.bar(x + width/2, after, width, label='After DPO (22 pairs)', color=CANE_GREEN, alpha=0.8, edgecolor='white', linewidth=0.5)
+bars1 = ax.bar(x - width/2, before, width, label='Before DPO', color=SPARSE_RED, alpha=0.8, edgecolor='white', linewidth=0.5)
+bars2 = ax.bar(x + width/2, after, width, label='After DPO (22 pairs)', color=SPARSE_GREEN, alpha=0.8, edgecolor='white', linewidth=0.5)
 
 for i, (b, a) in enumerate(zip(before, after)):
     if a > b:
-        ax.annotate(f'+{a-b}', xy=(i + width/2, a + 2), fontsize=8, fontweight='bold', color=CANE_GREEN, ha='center')
+        ax.annotate(f'+{a-b}', xy=(i + width/2, a + 2), fontsize=8, fontweight='bold', color=SPARSE_GREEN, ha='center')
 
 ax.set_ylabel('Score', fontsize=12, color='gray')
 ax.set_title('Groundedness: Before vs After DPO Training\n22 auto-generated pairs \u2192 generalization on unseen questions', fontsize=16, fontweight='bold', color='white', pad=15)
@@ -88,7 +88,7 @@ ax.spines['bottom'].set_color('gray')
 ax.spines['left'].set_color('gray')
 ax.tick_params(colors='gray')
 ax.axhline(y=85, color='gray', linestyle='--', alpha=0.3)
-ax.text(0.99, 0.02, 'cane-personality v0.1.0 | Qwen-2.5-7B + QLoRA DPO on RTX 4070 Laptop', transform=ax.transAxes, fontsize=8, color='gray', ha='right', style='italic')
+ax.text(0.99, 0.02, 'sparse-personality v0.1.0 | Qwen-2.5-7B + QLoRA DPO on RTX 4070 Laptop', transform=ax.transAxes, fontsize=8, color='gray', ha='right', style='italic')
 plt.tight_layout()
 plt.savefig('charts/dpo_before_after.png', dpi=200, bbox_inches='tight', facecolor=BG_COLOR)
 plt.close()
@@ -101,7 +101,7 @@ fig, ax = plt.subplots(figsize=(8, 8), subplot_kw=dict(projection='polar'), face
 ax.set_facecolor(BG_COLOR)
 
 trait_names = ['Low\nOverconfidence', 'Calibration', 'Low\nHedging', 'Verbosity', 'Groundedness', 'Completeness']
-CANE_CYAN = '#00E5FF'
+SPARSE_CYAN = '#00E5FF'
 model_data = {
     'Trinity-Large-Thinking': [100-4.6, 92.4, 100-8.5, 93.2, 91.5, 89.5],
     'Qwen-2.5-72B': [100-3.8, 92.8, 100-9.4, 93.9, 90.8, 86.9],
@@ -109,7 +109,7 @@ model_data = {
     'DeepSeek-V3':  [100-6.2, 90.9, 100-7.4, 99.0, 90.2, 88.9],
     'INTELLECT-3':  [100-6.8, 89.3, 100-7.5, 97.3, 88.4, 86.8],
 }
-colors_radar = [CANE_CYAN, CANE_GREEN, CANE_PURPLE, CANE_BLUE, CANE_ORANGE]
+colors_radar = [SPARSE_CYAN, SPARSE_GREEN, SPARSE_PURPLE, SPARSE_BLUE, SPARSE_ORANGE]
 angles = np.linspace(0, 2*np.pi, len(trait_names), endpoint=False).tolist()
 angles += angles[:1]
 
@@ -142,13 +142,13 @@ ax.set_xlim(0, 12)
 ax.set_ylim(0, 5)
 
 ax.text(6, 4.5, '22 DPO Pairs. One Training Run. On a Laptop.', fontsize=22, fontweight='bold', color='white', ha='center')
-ax.text(6, 3.8, 'Qwen-2.5-7B behavioral correction with cane-personality', fontsize=13, color='gray', ha='center')
+ax.text(6, 3.8, 'Qwen-2.5-7B behavioral correction with sparse-personality', fontsize=13, color='gray', ha='center')
 
 stats = [
-    ('Fabrication\nFails', '16 \u2192 7', '\u221256%', CANE_GREEN),
-    ('Questions\nImproved', '9 / 16', '56%', CANE_BLUE),
-    ('Training\nPairs', '22', 'auto-generated', CANE_ORANGE),
-    ('Training\nTime', '2h 11m', 'RTX 4070 laptop', CANE_PURPLE),
+    ('Fabrication\nFails', '16 \u2192 7', '\u221256%', SPARSE_GREEN),
+    ('Questions\nImproved', '9 / 16', '56%', SPARSE_BLUE),
+    ('Training\nPairs', '22', 'auto-generated', SPARSE_ORANGE),
+    ('Training\nTime', '2h 11m', 'RTX 4070 laptop', SPARSE_PURPLE),
 ]
 
 for i, (label, value, sub, color) in enumerate(stats):
@@ -157,7 +157,7 @@ for i, (label, value, sub, color) in enumerate(stats):
     ax.text(x_pos, 1.6, label, fontsize=11, color='white', ha='center')
     ax.text(x_pos, 1.0, sub, fontsize=9, color='gray', ha='center', style='italic')
 
-ax.text(6, 0.2, 'pip install cane-personality  |  github.com/colingfly/cane-personality', fontsize=10, color='gray', ha='center')
+ax.text(6, 0.2, 'pip install sparse-personality  |  github.com/colingfly/sparse-personality', fontsize=10, color='gray', ha='center')
 plt.tight_layout()
 plt.savefig('charts/summary.png', dpi=200, bbox_inches='tight', facecolor=BG_COLOR)
 plt.close()
@@ -184,19 +184,19 @@ if os.path.exists(teachability_path):
         x = np.arange(len(t_models))
         width = 0.35
 
-        ax.bar(x - width/2, t_pre, width, label='Pre-DPO', color=CANE_RED, alpha=0.8, edgecolor='white', linewidth=0.5)
-        ax.bar(x + width/2, t_post, width, label='Post-DPO', color=CANE_GREEN, alpha=0.8, edgecolor='white', linewidth=0.5)
+        ax.bar(x - width/2, t_pre, width, label='Pre-DPO', color=SPARSE_RED, alpha=0.8, edgecolor='white', linewidth=0.5)
+        ax.bar(x + width/2, t_post, width, label='Post-DPO', color=SPARSE_GREEN, alpha=0.8, edgecolor='white', linewidth=0.5)
 
         for i, (pre, post) in enumerate(zip(t_pre, t_post)):
             delta = post - pre
-            color = CANE_GREEN if delta >= 0 else CANE_RED
+            color = SPARSE_GREEN if delta >= 0 else SPARSE_RED
             sign = '+' if delta >= 0 else ''
             ax.annotate(f'{sign}{delta:.1f}', xy=(i + width/2, max(pre, post) + 1),
                         fontsize=10, fontweight='bold', color=color, ha='center')
 
         # Add grade labels
         for i, r in enumerate(teach_results):
-            grade_colors = {'A': CANE_GREEN, 'B': '#94d82d', 'C': '#ffd43b', 'D': CANE_ORANGE, 'F': CANE_RED}
+            grade_colors = {'A': SPARSE_GREEN, 'B': '#94d82d', 'C': '#ffd43b', 'D': SPARSE_ORANGE, 'F': SPARSE_RED}
             ax.text(i, min(t_pre[i], t_post[i]) - 4, r['grade'],
                     fontsize=16, fontweight='bold', color=grade_colors.get(r['grade'], 'gray'), ha='center')
 
@@ -212,7 +212,7 @@ if os.path.exists(teachability_path):
         ax.spines['left'].set_color('gray')
         ax.tick_params(colors='gray')
         ax.axhline(y=85, color='gray', linestyle='--', alpha=0.3)
-        ax.text(0.99, 0.02, 'cane-personality | Teachability Benchmark', transform=ax.transAxes, fontsize=8, color='gray', ha='right', style='italic')
+        ax.text(0.99, 0.02, 'sparse-personality | Teachability Benchmark', transform=ax.transAxes, fontsize=8, color='gray', ha='right', style='italic')
         plt.tight_layout()
         plt.savefig('charts/teachability.png', dpi=200, bbox_inches='tight', facecolor=BG_COLOR)
         plt.close()

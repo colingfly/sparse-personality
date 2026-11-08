@@ -5,7 +5,7 @@ from personality profiling results.
 """
 
 import json
-from cane_personality.types import ProfileResult, ContrastivePair, SteeringVector
+from sparse_personality.types import ProfileResult, ContrastivePair, SteeringVector
 
 
 def export_dpo_pairs(profile: ProfileResult, path: str):
@@ -24,7 +24,7 @@ def export_dpo_pairs(profile: ProfileResult, path: str):
                 "chosen_score": pair.right_score,
                 "rejected_score": pair.wrong_score,
                 "trait": pair.trait_tag,
-                "source": "cane-personality",
+                "source": "sparse-personality",
                 "model": profile.model_name,
             }
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
@@ -44,7 +44,7 @@ def export_sft_examples(profile: ProfileResult, path: str, min_score: float = 80
                     "completion": r.agent_answer,
                     "score": r.score,
                     "traits": r.traits,
-                    "source": "cane-personality",
+                    "source": "sparse-personality",
                     "model": profile.model_name,
                 }
                 f.write(json.dumps(entry, ensure_ascii=False) + "\n")

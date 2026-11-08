@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from cane_personality.types import TeachabilityResult
+from sparse_personality.types import TeachabilityResult
 
 
 def _load_results(path: str) -> dict:
@@ -227,7 +227,7 @@ def generate_teachability_html(results: list[TeachabilityResult]) -> str:
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cane Teachability Report</title>
+<title>Sparse Intelligence Teachability Report</title>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
   * {{ margin: 0; padding: 0; box-sizing: border-box; }}

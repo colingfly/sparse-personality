@@ -6,7 +6,7 @@ trait bars, steering vector details, and cluster labels.
 
 import json
 
-from cane_personality.types import ProfileResult
+from sparse_personality.types import ProfileResult
 
 
 def generate_html_report(profile: ProfileResult) -> str:
@@ -21,7 +21,7 @@ def generate_html_report(profile: ProfileResult) -> str:
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cane Personality Profile: {profile.suite_name}</title>
+<title>Sparse Intelligence Personality Profile: {profile.suite_name}</title>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
   * {{ margin: 0; padding: 0; box-sizing: border-box; }}

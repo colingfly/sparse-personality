@@ -1,8 +1,8 @@
-# cane-personality
+# sparse-personality
 
 Behavioral profiling benchmark for LLMs. Profile any model's personality, extract steering vectors, generate DPO training pairs to fix what's broken.
 
-[![PyPI](https://img.shields.io/pypi/v/cane-personality)](https://pypi.org/project/cane-personality/)
+[![PyPI](https://img.shields.io/pypi/v/sparse-personality)](https://pypi.org/project/sparse-personality/)
 
 ```
                    Trinity-LT  Qwen-2.5-72B  OLMo-2-32B  DeepSeek-V3  INTELLECT-3  Qwen-2.5-7B
@@ -25,7 +25,7 @@ DPO Pairs Generated       13          11          11          17           21   
 - **Better hedging detection**: word boundary matching replaces substring matching
 - **Custom judge prompts**: bring your own scoring rubric
 - **Score validation**: judge scores clamped to 0-100
-- **Progress bars**: optional tqdm support (pip install cane-personality[progress])
+- **Progress bars**: optional tqdm support (pip install sparse-personality[progress])
 
 ## What it does
 
@@ -38,17 +38,17 @@ DPO Pairs Generated       13          11          11          17           21   
 ## Quick start
 
 ```bash
-pip install cane-personality[all]
+pip install sparse-personality[all]
 export ANTHROPIC_API_KEY=sk-ant-...
 
 # Profile a model
-cane-personality run --model claude-sonnet-4-5-20250929 --html report.html
+sparse-personality run --model claude-sonnet-4-5-20250929 --html report.html
 
 # Profile with OpenAI
-cane-personality run --provider openai --model gpt-4o
+sparse-personality run --provider openai --model gpt-4o
 
 # Profile local model via Ollama
-cane-personality run --provider ollama --model llama3 --base-url http://localhost:11434/v1
+sparse-personality run --provider ollama --model llama3 --base-url http://localhost:11434/v1
 ```
 
 ## Three outputs
@@ -56,7 +56,7 @@ cane-personality run --provider ollama --model llama3 --base-url http://localhos
 ### 1. Behavioral profile
 
 ```bash
-cane-personality run --model claude-sonnet-4-5-20250929 --html report.html
+sparse-personality run --model claude-sonnet-4-5-20250929 --html report.html
 ```
 
 Interactive HTML report with:
@@ -67,7 +67,7 @@ Interactive HTML report with:
 ### 2. Steering vectors
 
 ```bash
-cane-personality run --model my-model --export-vectors vectors.json
+sparse-personality run --model my-model --export-vectors vectors.json
 ```
 
 Directions in embedding space between behavioral poles:
@@ -79,7 +79,7 @@ Export as JSON for representation engineering or inference-time intervention.
 ### 3. DPO training pairs
 
 ```bash
-cane-personality run --model my-model --export-dpo pairs.jsonl
+sparse-personality run --model my-model --export-dpo pairs.jsonl
 ```
 
 Every contrastive pair (confidently right vs. confidently wrong) exported as:
@@ -118,10 +118,10 @@ Ready for TRL, OpenRLHF, or PRIME-RL. Tagged by trait so you can target specific
 
 ```bash
 # Compare against shipped baselines
-cane-personality compare --baselines intellect3,olmo2,qwen25 --html comparison.html
+sparse-personality compare --baselines intellect3,olmo2,qwen25 --html comparison.html
 
 # Compare your profiles
-cane-personality compare --profiles model_a.json,model_b.json --html comparison.html
+sparse-personality compare --profiles model_a.json,model_b.json --html comparison.html
 ```
 
 Generates side-by-side comparison with trait table, overlaid radar charts, and per-trait rankings.
@@ -129,7 +129,7 @@ Generates side-by-side comparison with trait table, overlaid radar charts, and p
 ## Python API
 
 ```python
-from cane_personality import Profiler, Judge, export_dpo_pairs
+from sparse_personality import Profiler, Judge, export_dpo_pairs
 
 # Score responses with built-in judge
 judge = Judge(provider="anthropic", model="claude-haiku-4-5-20241022")
@@ -163,11 +163,11 @@ export_dpo_pairs(profile, "pairs.jsonl")
 ## Install
 
 ```bash
-pip install cane-personality                   # core (numpy, pyyaml)
-pip install cane-personality[anthropic]        # + Anthropic provider
-pip install cane-personality[openai]           # + OpenAI/Ollama provider
-pip install cane-personality[embeddings]       # + sentence-transformers
-pip install cane-personality[all]              # everything
+pip install sparse-personality                   # core (numpy, pyyaml)
+pip install sparse-personality[anthropic]        # + Anthropic provider
+pip install sparse-personality[openai]           # + OpenAI/Ollama provider
+pip install sparse-personality[embeddings]       # + sentence-transformers
+pip install sparse-personality[all]              # everything
 ```
 
 ## How it works

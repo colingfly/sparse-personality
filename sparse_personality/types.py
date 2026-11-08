@@ -1,4 +1,4 @@
-"""types.py -- Core data types for cane-personality."""
+"""types.py -- Core data types for sparse-personality."""
 
 import json
 from dataclasses import dataclass, field
@@ -150,7 +150,7 @@ class ProfileResult:
             json.dump(self.to_dict(), f, indent=2)
 
     def to_html(self, path: str):
-        from cane_personality.report import generate_html_report
+        from sparse_personality.report import generate_html_report
         html = generate_html_report(self)
         with open(path, "w", encoding="utf-8") as f:
             f.write(html)

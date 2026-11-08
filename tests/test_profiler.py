@@ -1,4 +1,4 @@
-"""Comprehensive test suite for cane-personality.
+"""Comprehensive test suite for sparse-personality.
 
 Covers traits, profiler, types, compare, export, and judge modules.
 Uses numpy for synthetic data and avoids sentence-transformers / API calls.
@@ -11,21 +11,21 @@ import tempfile
 import numpy as np
 import pytest
 
-from cane_personality.types import (
+from sparse_personality.types import (
     EmbeddedResult,
     PersonalityProfile,
     SteeringVector,
     ContrastivePair,
     ProfileResult,
 )
-from cane_personality.traits import (
+from sparse_personality.traits import (
     PERSONALITY_TRAITS,
     HEDGE_MARKERS,
     score_hedging,
     score_verbosity,
     compute_traits,
 )
-from cane_personality.profiler import (
+from sparse_personality.profiler import (
     project_pca,
     cluster_kmeans,
     aggregate_personality,
@@ -33,8 +33,8 @@ from cane_personality.profiler import (
     compute_steering_vectors,
     label_clusters,
 )
-from cane_personality.compare import compare_profiles, format_comparison_table
-from cane_personality.export import export_dpo_pairs, export_steering_vectors
+from sparse_personality.compare import compare_profiles, format_comparison_table
+from sparse_personality.export import export_dpo_pairs, export_steering_vectors
 
 
 # ---------------------------------------------------------------------------
@@ -725,7 +725,7 @@ class TestExportDpoPairs:
             assert entry["prompt"] == "Q1"
             assert entry["chosen"] == "correct answer"
             assert entry["rejected"] == "wrong answer"
-            assert entry["source"] == "cane-personality"
+            assert entry["source"] == "sparse-personality"
             assert entry["model"] == "test-model"
             assert entry["trait"] == "overconfidence"
         finally:
@@ -784,7 +784,7 @@ class TestJudgeParsing:
 
     def test_parse_clean_json(self):
         """Test Judge.score parsing by calling the parse logic directly."""
-        from cane_personality.judge import Judge
+        from sparse_personality.judge import Judge
         import re
 
         raw = '{"accuracy": 85, "completeness": 70, "hallucination": 90, "status": "pass", "overall_score": 82}'
@@ -811,21 +811,21 @@ class TestJudgeParsing:
 
     def test_judge_init_defaults(self):
         """Test Judge constructor without API calls."""
-        from cane_personality.judge import Judge
+        from sparse_personality.judge import Judge
         j = Judge(provider="ollama")
         assert j.provider == "ollama"
         assert j.model == "llama3"
         assert j.base_url == "http://localhost:11434/v1"
 
     def test_judge_custom_model(self):
-        from cane_personality.judge import Judge
+        from sparse_personality.judge import Judge
         j = Judge(provider="openai", model="gpt-4", api_key="fake")
         assert j.model == "gpt-4"
         assert j.api_key == "fake"
 
     def test_json_with_trailing_reasoning(self):
         """Test that _extract_first_json correctly parses JSON followed by reasoning text."""
-        from cane_personality.judge import _extract_first_json
+        from sparse_personality.judge import _extract_first_json
         raw = '{"accuracy": 95, "completeness": 90, "hallucination": 100, "status": "pass", "overall_score": 95}\n\nReasoning:\n- Accuracy is high because...'
         result = _extract_first_json(raw)
         assert result is not None
@@ -837,7 +837,7 @@ class TestJudgeParsing:
 
     def test_json_with_trailing_comma(self):
         """Test handling of trailing text after valid JSON."""
-        from cane_personality.judge import _extract_first_json
+        from sparse_personality.judge import _extract_first_json
         raw = '{"accuracy": 80, "completeness": 75, "hallucination": 85, "status": "pass", "overall_score": 80}, and some trailing text'
         result = _extract_first_json(raw)
         assert result is not None
@@ -846,13 +846,13 @@ class TestJudgeParsing:
 
     def test_completely_invalid_response(self):
         """_extract_first_json returns None for text with no JSON at all."""
-        from cane_personality.judge import _extract_first_json
+        from sparse_personality.judge import _extract_first_json
         result = _extract_first_json("This response has no JSON at all")
         assert result is None
 
     def test_scores_outside_range(self):
         """_clamp_scores clamps negative values to 0 and values over 100 to 100."""
-        from cane_personality.judge import _clamp_scores
+        from sparse_personality.judge import _clamp_scores
         data = {"accuracy": -10, "completeness": 150, "hallucination": 50, "overall_score": 200}
         clamped = _clamp_scores(data)
         assert clamped["accuracy"] == 0
@@ -862,7 +862,7 @@ class TestJudgeParsing:
 
     def test_non_numeric_scores(self):
         """_clamp_scores replaces non-numeric values like 'high' with 50."""
-        from cane_personality.judge import _clamp_scores
+        from sparse_personality.judge import _clamp_scores
         data = {"accuracy": "high", "completeness": "low", "hallucination": 80, "overall_score": "medium"}
         clamped = _clamp_scores(data)
         assert clamped["accuracy"] == 50
@@ -872,7 +872,7 @@ class TestJudgeParsing:
 
     def test_empty_response(self):
         """_extract_first_json returns None for empty string."""
-        from cane_personality.judge import _extract_first_json
+        from sparse_personality.judge import _extract_first_json
         result = _extract_first_json("")
         assert result is None
 

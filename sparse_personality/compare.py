@@ -8,7 +8,7 @@ import json
 from pathlib import Path
 from typing import Optional
 
-from cane_personality.types import ProfileResult, PersonalityProfile
+from sparse_personality.types import ProfileResult, PersonalityProfile
 
 
 def load_baseline(path: str) -> ProfileResult:
@@ -263,7 +263,7 @@ def generate_comparison_html(comparison: dict, profiles: dict[str, ProfileResult
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Cane Personality Comparison</title>
+<title>Sparse Intelligence Personality Comparison</title>
 <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 <style>
   * {{ margin: 0; padding: 0; box-sizing: border-box; }}
@@ -281,7 +281,7 @@ def generate_comparison_html(comparison: dict, profiles: dict[str, ProfileResult
 <body>
 <div class="container">
   <h1>Model Behavioral Comparison</h1>
-  <div class="subtitle">{len(models)} models | {len(traits)} traits | cane-personality</div>
+  <div class="subtitle">{len(models)} models | {len(traits)} traits | sparse-personality</div>
 
   <div class="card">
     <table>

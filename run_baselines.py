@@ -51,7 +51,7 @@ def call_model(client, model_id, question, max_retries=6):
                 model=model_id,
                 max_tokens=tokens,
                 messages=[{"role": "user", "content": question}],
-                extra_headers={"HTTP-Referer": "https://cane.fyi", "X-Title": "cane-personality"},
+                extra_headers={"HTTP-Referer": "https://sparseintelligence.ai", "X-Title": "sparse-personality"},
             )
             msg = resp.choices[0].message
             # Some reasoning models put output in reasoning field instead of content
@@ -80,7 +80,7 @@ def judge_response(client, question, expected, answer, max_retries=3):
                 model=JUDGE_MODEL,
                 max_tokens=256,
                 messages=[{"role": "user", "content": prompt}],
-                extra_headers={"HTTP-Referer": "https://cane.fyi", "X-Title": "cane-personality"},
+                extra_headers={"HTTP-Referer": "https://sparseintelligence.ai", "X-Title": "sparse-personality"},
             )
             text = resp.choices[0].message.content.strip()
             if text.startswith("```"):
@@ -157,7 +157,7 @@ def run_baseline(client, model_name, model_id, tests):
 
 
 def profile_and_save(results, model_name, model_id, suite_name):
-    from cane_personality.profiler import Profiler
+    from sparse_personality.profiler import Profiler
 
     profiler = Profiler(
         embedding_model="all-MiniLM-L6-v2",
@@ -176,7 +176,7 @@ def profile_and_save(results, model_name, model_id, suite_name):
     profile.to_html(str(baselines_dir / f"{model_name}_report.html"))
 
     # Save DPO pairs
-    from cane_personality.export import export_dpo_pairs
+    from sparse_personality.export import export_dpo_pairs
     dpo_path = baselines_dir / f"{model_name}_dpo.jsonl"
     export_dpo_pairs(profile, str(dpo_path))
 
@@ -193,7 +193,7 @@ def main():
         sys.exit(1)
 
     # Load suite
-    suite_path = Path(__file__).parent / "cane_personality" / "suites" / "default.yaml"
+    suite_path = Path(__file__).parent / "sparse_personality" / "suites" / "default.yaml"
     with open(suite_path, "r", encoding="utf-8") as f:
         suite = yaml.safe_load(f)
 
@@ -223,7 +223,7 @@ def main():
 
     # Generate comparison
     if len(profiles) > 1:
-        from cane_personality.compare import compare_profiles, format_comparison_table, generate_comparison_html
+        from sparse_personality.compare import compare_profiles, format_comparison_table, generate_comparison_html
 
         comparison = compare_profiles(profiles)
         print(f"\n\n{'=' * 80}")

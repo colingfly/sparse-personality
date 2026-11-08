@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from cane_personality.cli import _checkpoint_path, _load_checkpoint, _append_checkpoint
+from sparse_personality.cli import _checkpoint_path, _load_checkpoint, _append_checkpoint
 
 
 class TestCheckpoint:
@@ -20,7 +20,7 @@ class TestCheckpoint:
         """When output_json is None, use the default checkpoint path."""
         args = Namespace(output_json=None)
         result = _checkpoint_path(args)
-        assert result == Path(".cane_checkpoint.jsonl")
+        assert result == Path(".sparse_checkpoint.jsonl")
 
     def test_load_checkpoint_empty(self, tmp_path):
         """Loading a non-existent checkpoint returns empty dict."""

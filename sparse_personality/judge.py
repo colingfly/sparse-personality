@@ -8,7 +8,7 @@ import json
 import logging
 import os
 
-log = logging.getLogger("cane_personality")
+log = logging.getLogger("sparse_personality")
 
 
 def _extract_first_json(text: str) -> dict | None:
@@ -100,7 +100,7 @@ def _call_anthropic(prompt: str, model: str, api_key: str) -> str:
     try:
         import anthropic
     except ImportError:
-        raise ImportError("anthropic is required. Install: pip install cane-personality[anthropic]")
+        raise ImportError("anthropic is required. Install: pip install sparse-personality[anthropic]")
 
     client = anthropic.Anthropic(api_key=api_key)
     response = client.messages.create(
@@ -116,7 +116,7 @@ def _call_openai(prompt: str, model: str, api_key: str, base_url: str = None) ->
     try:
         import openai
     except ImportError:
-        raise ImportError("openai is required. Install: pip install cane-personality[openai]")
+        raise ImportError("openai is required. Install: pip install sparse-personality[openai]")
 
     kwargs = {"api_key": api_key}
     if base_url:

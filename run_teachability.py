@@ -16,7 +16,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from cane_personality.teachability import (
+from sparse_personality.teachability import (
     compute_teachability,
     compare_teachability,
     generate_teachability_html,

@@ -1,8 +1,8 @@
 """
-train_dpo.py -- DPO fine-tuning using cane-personality generated pairs.
+train_dpo.py -- DPO fine-tuning using sparse-personality generated pairs.
 
 Trains models using QLoRA to fit in limited VRAM.
-Uses DPO pairs from cane-personality baselines to fix behavioral flaws.
+Uses DPO pairs from sparse-personality baselines to fix behavioral flaws.
 
 Usage:
     python train_dpo.py qwen25_7b
@@ -28,7 +28,7 @@ TRAINABLE_MODELS = {
 
 
 def load_dpo_pairs(jsonl_path):
-    """Load DPO pairs from cane-personality export."""
+    """Load DPO pairs from sparse-personality export."""
     pairs = []
     with open(jsonl_path, "r", encoding="utf-8") as f:
         for line in f:
@@ -44,7 +44,7 @@ def load_dpo_pairs(jsonl_path):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="DPO fine-tuning with cane-personality pairs")
+    parser = argparse.ArgumentParser(description="DPO fine-tuning with sparse-personality pairs")
     parser.add_argument("name", nargs="?", help="Short model name from TRAINABLE_MODELS")
     parser.add_argument("--model", help="HuggingFace model ID (overrides name lookup)")
     parser.add_argument("--dpo-pairs", help="Path to DPO JSONL file (default: baselines/{name}_dpo.jsonl)")
@@ -163,7 +163,7 @@ def main():
     trainer.save_model(str(output_dir))
     tokenizer.save_pretrained(str(output_dir))
 
-    print("Done! Model saved. Run cane-personality against it to see the improvement.")
+    print("Done! Model saved. Run sparse-personality against it to see the improvement.")
 
 
 if __name__ == "__main__":

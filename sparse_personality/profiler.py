@@ -13,14 +13,14 @@ from pathlib import Path
 
 import numpy as np
 
-from cane_personality.types import (
+from sparse_personality.types import (
     EmbeddedResult,
     PersonalityProfile,
     SteeringVector,
     ContrastivePair,
     ProfileResult,
 )
-from cane_personality.traits import (
+from sparse_personality.traits import (
     PERSONALITY_TRAITS,
     compute_traits,
 )
@@ -28,7 +28,7 @@ from cane_personality.traits import (
 
 def _embedding_cache_dir() -> Path:
     """Return (and create if needed) the embedding cache directory."""
-    cache_dir = Path.home() / ".cache" / "cane-personality"
+    cache_dir = Path.home() / ".cache" / "sparse-personality"
     cache_dir.mkdir(parents=True, exist_ok=True)
     return cache_dir
 
@@ -50,7 +50,7 @@ def embed_texts(
     """Embed a list of texts, returning (n, dim) array.
 
     When use_cache is True (the default), embeddings are persisted to
-    ~/.cache/cane-personality/ keyed by a SHA-256 hash of the input texts
+    ~/.cache/sparse-personality/ keyed by a SHA-256 hash of the input texts
     and model name. Subsequent calls with identical inputs skip the model
     entirely and load from disk.
     """
@@ -71,7 +71,7 @@ def embed_texts(
     except ImportError:
         raise ImportError(
             "sentence-transformers is required for profiling. "
-            "Install it: pip install cane-personality[embeddings]"
+            "Install it: pip install sparse-personality[embeddings]"
         )
     model = SentenceTransformer(model_name)
     embeddings = model.encode(texts, show_progress_bar=False, normalize_embeddings=True)

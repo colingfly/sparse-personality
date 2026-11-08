@@ -116,7 +116,7 @@ def judge_response(client, question, expected, answer, max_retries=3):
                 model=JUDGE_MODEL,
                 max_tokens=256,
                 messages=[{"role": "user", "content": prompt}],
-                extra_headers={"HTTP-Referer": "https://cane.fyi", "X-Title": "cane-personality"},
+                extra_headers={"HTTP-Referer": "https://sparseintelligence.ai", "X-Title": "sparse-personality"},
             )
             content = resp.choices[0].message.content.strip()
             # Extract JSON
@@ -189,7 +189,7 @@ def main():
     model, tokenizer = load_local_model(base_model, str(adapter_path) if adapter_path else None)
 
     # Load questions
-    suite_file = base_dir / "cane_personality" / "suites" / "default.yaml"
+    suite_file = base_dir / "sparse_personality" / "suites" / "default.yaml"
     suite = yaml.safe_load(open(suite_file, encoding="utf-8"))
     all_questions = suite["tests"]
 

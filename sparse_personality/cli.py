@@ -1,10 +1,10 @@
-"""cli.py -- Command-line interface for cane-personality.
+"""cli.py -- Command-line interface for sparse-personality.
 
 Usage:
-    cane-personality run --model claude-sonnet-4-5-20250929 --html report.html
-    cane-personality run --provider openai --model gpt-4o
-    cane-personality run --suite custom.yaml --export-dpo pairs.jsonl
-    cane-personality compare --baselines intellect3,olmo2 --html comparison.html
+    sparse-personality run --model claude-sonnet-4-5-20250929 --html report.html
+    sparse-personality run --provider openai --model gpt-4o
+    sparse-personality run --suite custom.yaml --export-dpo pairs.jsonl
+    sparse-personality compare --baselines intellect3,olmo2 --html comparison.html
 """
 
 import argparse
@@ -51,7 +51,7 @@ def _checkpoint_path(args):
     """Determine the checkpoint file path based on output json path or default."""
     if args.output_json:
         return Path(args.output_json).with_suffix(".checkpoint.jsonl")
-    return Path(".cane_checkpoint.jsonl")
+    return Path(".sparse_checkpoint.jsonl")
 
 
 def _load_checkpoint(ckpt_path):
@@ -80,9 +80,9 @@ def _append_checkpoint(ckpt_path, result):
 
 def cmd_run(args):
     """Run personality profiling on a model."""
-    from cane_personality.judge import Judge
-    from cane_personality.profiler import Profiler
-    from cane_personality.export import export_dpo_pairs, export_sft_examples, export_steering_vectors
+    from sparse_personality.judge import Judge
+    from sparse_personality.profiler import Profiler
+    from sparse_personality.export import export_dpo_pairs, export_sft_examples, export_steering_vectors
 
     # Try to import tqdm for progress bars (optional dependency)
     try:
@@ -100,7 +100,7 @@ def cmd_run(args):
     provider = args.provider or "anthropic"
 
     print()
-    print(f"  {c('cane-personality', 'cyan')} {c(suite_name, 'bold')}")
+    print(f"  {c('sparse-personality', 'cyan')} {c(suite_name, 'bold')}")
     print(f"  {len(tests)} probes | model: {model} | provider: {provider}")
     print()
 
@@ -351,7 +351,7 @@ def cmd_run(args):
 
 def cmd_compare(args):
     """Compare multiple model profiles."""
-    from cane_personality.compare import (
+    from sparse_personality.compare import (
         load_baseline, load_baselines_dir, compare_profiles,
         format_comparison_table, generate_comparison_html,
     )
@@ -389,7 +389,7 @@ def cmd_compare(args):
         sys.exit(1)
 
     print()
-    print(f"  {c('cane-personality compare', 'cyan')} {c(f'{len(profiles)} models', 'bold')}")
+    print(f"  {c('sparse-personality compare', 'cyan')} {c(f'{len(profiles)} models', 'bold')}")
     print()
 
     comparison = compare_profiles(profiles)
@@ -407,7 +407,7 @@ def cmd_compare(args):
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="cane-personality",
+        prog="sparse-personality",
         description="Behavioral profiling benchmark for LLMs",
     )
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
