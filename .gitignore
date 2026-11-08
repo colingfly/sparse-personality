@@ -6,3 +6,9 @@ build/
 .eggs/
 *.egg
 .env
+
+# Trained model weights (391MB, never commit)
+trained/
+
+# Claude Code local dir
+.claude/

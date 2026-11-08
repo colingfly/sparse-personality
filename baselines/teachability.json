@@ -1,0 +1,37 @@
+{
+  "rankings": {
+    "by_recovery": [
+      "qwen/qwen-2.5-7b-instruct"
+    ],
+    "by_net_delta": [
+      "qwen/qwen-2.5-7b-instruct"
+    ],
+    "by_efficiency": [
+      "qwen/qwen-2.5-7b-instruct"
+    ],
+    "by_grade": [
+      "qwen/qwen-2.5-7b-instruct"
+    ]
+  },
+  "results": [
+    {
+      "model_name": "qwen/qwen-2.5-7b-instruct",
+      "pre_avg": 87.5,
+      "post_avg": 86.1,
+      "net_delta": -1.4,
+      "failure_recovery_rate": 0.609,
+      "regression_rate": 0.018,
+      "per_trait_deltas": {
+        "accuracy": -0.8,
+        "hallucination": 0.1,
+        "completeness": -3.2
+      },
+      "dpo_pair_count": 22,
+      "dpo_efficiency": -0.06,
+      "questions_improved": 29,
+      "questions_regressed": 74,
+      "total_questions": 300,
+      "grade": "B"
+    }
+  ]
+}

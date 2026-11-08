@@ -163,4 +163,63 @@ plt.savefig('charts/summary.png', dpi=200, bbox_inches='tight', facecolor=BG_COL
 plt.close()
 print('Saved summary.png')
 
-print('\nAll 4 charts saved to charts/')
+# ═══════════════════════════════════════════════════
+# CHART 5: Teachability (if data exists)
+# ═══════════════════════════════════════════════════
+teachability_path = os.path.join('baselines', 'teachability.json')
+if os.path.exists(teachability_path):
+    import json
+    with open(teachability_path) as f:
+        teach_data = json.load(f)
+
+    teach_results = teach_data.get('results', [])
+    if teach_results:
+        fig, ax = plt.subplots(figsize=(12, 6), facecolor=BG_COLOR)
+        ax.set_facecolor(BG_COLOR)
+
+        t_models = [r['model_name'] for r in teach_results]
+        t_pre = [r['pre_avg'] for r in teach_results]
+        t_post = [r['post_avg'] for r in teach_results]
+
+        x = np.arange(len(t_models))
+        width = 0.35
+
+        ax.bar(x - width/2, t_pre, width, label='Pre-DPO', color=CANE_RED, alpha=0.8, edgecolor='white', linewidth=0.5)
+        ax.bar(x + width/2, t_post, width, label='Post-DPO', color=CANE_GREEN, alpha=0.8, edgecolor='white', linewidth=0.5)
+
+        for i, (pre, post) in enumerate(zip(t_pre, t_post)):
+            delta = post - pre
+            color = CANE_GREEN if delta >= 0 else CANE_RED
+            sign = '+' if delta >= 0 else ''
+            ax.annotate(f'{sign}{delta:.1f}', xy=(i + width/2, max(pre, post) + 1),
+                        fontsize=10, fontweight='bold', color=color, ha='center')
+
+        # Add grade labels
+        for i, r in enumerate(teach_results):
+            grade_colors = {'A': CANE_GREEN, 'B': '#94d82d', 'C': '#ffd43b', 'D': CANE_ORANGE, 'F': CANE_RED}
+            ax.text(i, min(t_pre[i], t_post[i]) - 4, r['grade'],
+                    fontsize=16, fontweight='bold', color=grade_colors.get(r['grade'], 'gray'), ha='center')
+
+        ax.set_ylabel('Average Score', fontsize=12, color='gray')
+        ax.set_title('Teachability: Pre-DPO vs Post-DPO Performance', fontsize=16, fontweight='bold', color='white', pad=15)
+        ax.set_xticks(x)
+        ax.set_xticklabels(t_models, rotation=30, ha='right', fontsize=10, color='gray')
+        ax.legend(fontsize=12, loc='upper right')
+        ax.set_ylim(0, 105)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['bottom'].set_color('gray')
+        ax.spines['left'].set_color('gray')
+        ax.tick_params(colors='gray')
+        ax.axhline(y=85, color='gray', linestyle='--', alpha=0.3)
+        ax.text(0.99, 0.02, 'cane-personality | Teachability Benchmark', transform=ax.transAxes, fontsize=8, color='gray', ha='right', style='italic')
+        plt.tight_layout()
+        plt.savefig('charts/teachability.png', dpi=200, bbox_inches='tight', facecolor=BG_COLOR)
+        plt.close()
+        print('Saved teachability.png')
+    else:
+        print('Skipped teachability.png (no results)')
+else:
+    print('Skipped teachability.png (no teachability.json)')
+
+print('\nAll charts saved to charts/')

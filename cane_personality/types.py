@@ -154,3 +154,38 @@ class ProfileResult:
         html = generate_html_report(self)
         with open(path, "w", encoding="utf-8") as f:
             f.write(html)
+
+
+@dataclass
+class TeachabilityResult:
+    """Pre-DPO vs post-DPO comparison for a single model."""
+    model_name: str
+    pre_avg: float
+    post_avg: float
+    net_delta: float
+    failure_recovery_rate: float  # 0-1: fraction of pre-DPO fails that became passes
+    regression_rate: float  # 0-1: fraction of pre-DPO passes that became fails
+    per_trait_deltas: dict = field(default_factory=dict)  # trait -> delta
+    dpo_pair_count: int = 0
+    dpo_efficiency: float = 0.0  # net_delta / pair_count
+    questions_improved: int = 0
+    questions_regressed: int = 0
+    total_questions: int = 0
+    grade: str = ""  # A/B/C/D/F
+
+    def to_dict(self) -> dict:
+        return {
+            "model_name": self.model_name,
+            "pre_avg": round(self.pre_avg, 1),
+            "post_avg": round(self.post_avg, 1),
+            "net_delta": round(self.net_delta, 1),
+            "failure_recovery_rate": round(self.failure_recovery_rate, 3),
+            "regression_rate": round(self.regression_rate, 3),
+            "per_trait_deltas": {k: round(v, 1) for k, v in self.per_trait_deltas.items()},
+            "dpo_pair_count": self.dpo_pair_count,
+            "dpo_efficiency": round(self.dpo_efficiency, 2),
+            "questions_improved": self.questions_improved,
+            "questions_regressed": self.questions_regressed,
+            "total_questions": self.total_questions,
+            "grade": self.grade,
+        }

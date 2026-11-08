@@ -18,6 +18,11 @@ MODELS = {
     "qwen25": "qwen/qwen-2.5-72b-instruct",
     "qwen25_7b": "qwen/qwen-2.5-7b-instruct",
     "deepseek_v3": "deepseek/deepseek-chat-v3-0324",
+    "trinity_large_thinking": "arcee-ai/trinity-large-thinking",
+    "gemma4_31b": "google/gemma-4-31b-it",
+    # Small variants for teachability (DPO-trainable on consumer GPU)
+    "olmo3_7b": "allenai/olmo-3-7b-instruct-20251121",
+    "gemma3_4b": "google/gemma-3-4b-it",
 }
 
 JUDGE_MODEL = "anthropic/claude-3.5-haiku"
@@ -37,12 +42,14 @@ Respond with ONLY a JSON object:
 {{"accuracy": <score>, "completeness": <score>, "hallucination": <score>, "status": "<pass|warn|fail>", "overall_score": <score>}}"""
 
 
-def call_model(client, model_id, question, max_retries=3):
+def call_model(client, model_id, question, max_retries=6):
+    # Thinking models need more tokens to produce content after reasoning
+    tokens = 4096 if "thinking" in model_id.lower() else 1024
     for attempt in range(max_retries):
         try:
             resp = client.chat.completions.create(
                 model=model_id,
-                max_tokens=1024,
+                max_tokens=tokens,
                 messages=[{"role": "user", "content": question}],
                 extra_headers={"HTTP-Referer": "https://cane.fyi", "X-Title": "cane-personality"},
             )
@@ -58,7 +65,7 @@ def call_model(client, model_id, question, max_retries=3):
             return content or "(empty response)"
         except Exception as e:
             if attempt < max_retries - 1:
-                wait = 2 ** (attempt + 1)
+                wait = min(2 ** (attempt + 1), 30)
                 print(f"    Retry in {wait}s: {e}")
                 time.sleep(wait)
             else:

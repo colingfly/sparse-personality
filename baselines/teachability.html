@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cane Teachability Report</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #e0e0e0; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; color: #fff; }
+  h2 { font-size: 20px; font-weight: 600; margin: 32px 0 16px; color: #fff; }
+  .subtitle { color: #888; font-size: 14px; margin-bottom: 24px; }
+  .card { background: #141414; border: 1px solid #222; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; padding: 10px 12px; border-bottom: 2px solid #333; color: #888; font-weight: 500; font-size: 12px; text-transform: uppercase; }
+  td { padding: 10px 12px; border-bottom: 1px solid #1a1a1a; }
+  tr:hover { background: #1a1a1a; }
+  .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  #bar-chart, #radar-chart { height: 400px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Teachability Leaderboard</h1>
+  <p class="subtitle">Pre-DPO vs Post-DPO performance comparison across models</p>
+
+  <div class="card">
+    <h2>Leaderboard</h2>
+    <div style="overflow-x:auto">
+    <table>
+      <tr>
+        <th>Model</th><th>Grade</th><th>Pre Avg</th><th>Post Avg</th>
+        <th>Delta</th><th>Recovery</th><th>Regression</th>
+        <th>DPO Pairs</th><th>Efficiency</th><th>Improved</th><th>Regressed</th>
+      </tr>
+      <tr>
+            <td style="font-weight:600">qwen/qwen-2.5-7b-instruct</td>
+            <td><span style="color:#94d82d;font-size:20px;font-weight:700">B</span></td>
+            <td>87.5</td>
+            <td>86.1</td>
+            <td style="color:#ff6b6b;font-weight:600">-1.4</td>
+            <td>61%</td>
+            <td>2%</td>
+            <td>22</td>
+            <td>-0.06</td>
+            <td>29</td>
+            <td>74</td>
+        </tr>
+    </table>
+    </div>
+  </div>
+
+  <div class="chart-row">
+    <div class="card"><div id="bar-chart"></div></div>
+    <div class="card"><div id="radar-chart"></div></div>
+  </div>
+
+  <div class="card">
+    <h2>Per-Trait Deltas</h2>
+    <div style="overflow-x:auto">
+    <table>
+      <tr><th>Model</th><th>accuracy</th><th>completeness</th><th>hallucination</th></tr>
+      <tr><td style='font-weight:600'>qwen/qwen-2.5-7b-instruct</td><td style="color:#ff6b6b">-0.8</td><td style="color:#ff6b6b">-3.2</td><td style="color:#51cf66">+0.1</td></tr>
+    </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const data = [{"model_name": "qwen/qwen-2.5-7b-instruct", "pre_avg": 87.5, "post_avg": 86.1, "net_delta": -1.4, "failure_recovery_rate": 0.609, "regression_rate": 0.018, "per_trait_deltas": {"accuracy": -0.8, "hallucination": 0.1, "completeness": -3.2}, "dpo_pair_count": 22, "dpo_efficiency": -0.06, "questions_improved": 29, "questions_regressed": 74, "total_questions": 300, "grade": "B"}];
+
+// Grouped bar chart: pre vs post
+const models = data.map(d => d.model_name);
+const pre = data.map(d => d.pre_avg);
+const post = data.map(d => d.post_avg);
+
+Plotly.newPlot('bar-chart', [
+  { x: models, y: pre, name: 'Pre-DPO', type: 'bar', marker: { color: '#555' } },
+  { x: models, y: post, name: 'Post-DPO', type: 'bar', marker: { color: '#51cf66' } },
+], {
+  title: { text: 'Average Score: Before vs After DPO', font: { color: '#fff' } },
+  barmode: 'group',
+  paper_bgcolor: '#141414', plot_bgcolor: '#141414',
+  font: { color: '#aaa' },
+  xaxis: { gridcolor: '#222' }, yaxis: { gridcolor: '#222', range: [0, 100] },
+  legend: { font: { color: '#ccc' } },
+}, { responsive: true });
+
+// Radar chart overlay: pre vs post for each model
+if (data.length > 0) {
+  const traits = Object.keys(data[0].per_trait_deltas || {});
+  const radarTraces = [];
+  data.forEach((d, i) => {
+    const colors = ['#748ffc', '#ff6b6b', '#51cf66', '#ffd43b', '#cc5de8', '#20c997'];
+    const c = colors[i % colors.length];
+    radarTraces.push({
+      type: 'scatterpolar',
+      r: traits.map(t => (d.per_trait_deltas[t] || 0)),
+      theta: traits,
+      fill: 'toself',
+      name: d.model_name,
+      line: { color: c },
+      opacity: 0.6,
+    });
+  });
+  Plotly.newPlot('radar-chart', radarTraces, {
+    title: { text: 'Trait Deltas (Post - Pre)', font: { color: '#fff' } },
+    paper_bgcolor: '#141414', plot_bgcolor: '#141414',
+    font: { color: '#aaa' },
+    polar: { bgcolor: '#141414', radialaxis: { gridcolor: '#333' }, angularaxis: { gridcolor: '#333' } },
+    legend: { font: { color: '#ccc' } },
+  }, { responsive: true });
+}
+</script>
+</body>
+</html>

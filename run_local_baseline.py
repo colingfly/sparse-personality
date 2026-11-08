@@ -1,7 +1,15 @@
-"""Run personality baseline using a local model with optional LoRA adapter."""
+"""Run personality baseline using a local model with optional LoRA adapter.
 
+Usage:
+    python run_local_baseline.py qwen25_7b
+    python run_local_baseline.py --model Qwen/Qwen2.5-7B-Instruct --adapter trained/qwen25-7b-personality
+    python run_local_baseline.py olmo2_7b --groundedness
+"""
+
+import argparse
 import json
 import os
+import re
 import sys
 import time
 from pathlib import Path
@@ -29,6 +37,13 @@ Score each criterion from 0 to 100:
 
 Respond with ONLY a JSON object:
 {{"accuracy": <score>, "completeness": <score>, "hallucination": <score>, "status": "<pass|warn|fail>", "overall_score": <score>}}"""
+
+# Same registry as train_dpo.py
+TRAINABLE_MODELS = {
+    "qwen25_7b": "Qwen/Qwen2.5-7B-Instruct",
+    "olmo3_7b": "allenai/OLMo-3-7B-Instruct-20251121",
+    "gemma3_4b": "google/gemma-3-4b-it",
+}
 
 
 def load_local_model(base_model, adapter_path=None):
@@ -109,8 +124,6 @@ def judge_response(client, question, expected, answer, max_retries=3):
                 content = content.split("```")[1].strip()
                 if content.startswith("json"):
                     content = content[4:].strip()
-            # Extract just the JSON object, ignore trailing text
-            import re
             match = re.search(r'\{[^{}]*\}', content)
             if match:
                 parsed = json.loads(match.group())
@@ -121,28 +134,66 @@ def judge_response(client, question, expected, answer, max_retries=3):
             return parsed
         except Exception as e:
             print(f"    Judge error (attempt {attempt+1}): {e}", flush=True)
-            print(f"    Raw content: {content[:200]}", flush=True)
             if attempt < max_retries - 1:
                 time.sleep(2 ** attempt)
             else:
                 return {"accuracy": 50, "completeness": 50, "hallucination": 50, "status": "warn", "overall_score": 50}
 
 
-def main():
-    base_model = "Qwen/Qwen2.5-7B-Instruct"
-    adapter_path = Path(__file__).parent / "trained" / "qwen25-7b-personality"
-    output_name = "qwen25_7b_dpo"
-    baselines_dir = Path(__file__).parent / "baselines"
+def parse_args():
+    parser = argparse.ArgumentParser(description="Run post-DPO evaluation with a local model")
+    parser.add_argument("name", nargs="?", help="Short model name from TRAINABLE_MODELS")
+    parser.add_argument("--model", help="HuggingFace model ID (overrides name lookup)")
+    parser.add_argument("--adapter", help="Path to LoRA adapter (default: trained/{name}-personality)")
+    parser.add_argument("--output-name", help="Output file name without extension (default: {name}_dpo)")
+    parser.add_argument("--no-adapter", action="store_true", help="Run base model without adapter")
+    parser.add_argument("--groundedness", action="store_true", help="Filter to groundedness questions only")
+    return parser.parse_args()
 
-    print(f"Loading {base_model} + LoRA adapter...")
-    model, tokenizer = load_local_model(base_model, str(adapter_path))
+
+def main():
+    args = parse_args()
+    base_dir = Path(__file__).parent
+    baselines_dir = base_dir / "baselines"
+
+    # Resolve model
+    if args.name and args.name in TRAINABLE_MODELS:
+        base_model = TRAINABLE_MODELS[args.name]
+        short_name = args.name
+    elif args.model:
+        base_model = args.model
+        short_name = base_model.split("/")[-1].lower().replace("-", "_")
+    elif args.name:
+        print(f"Unknown model '{args.name}'. Available: {', '.join(TRAINABLE_MODELS.keys())}")
+        sys.exit(1)
+    else:
+        print("Provide a model name or --model. Available:")
+        for k, v in TRAINABLE_MODELS.items():
+            print(f"  {k}: {v}")
+        sys.exit(1)
+
+    if args.model:
+        base_model = args.model
+
+    adapter_path = None if args.no_adapter else (
+        Path(args.adapter) if args.adapter else base_dir / "trained" / f"{short_name}-personality"
+    )
+    output_name = args.output_name or f"{short_name}_dpo"
+
+    if adapter_path and not adapter_path.exists():
+        print(f"Adapter not found: {adapter_path}")
+        print("Run train_dpo.py first, or use --no-adapter for base model evaluation.")
+        sys.exit(1)
+
+    print(f"Loading {base_model}" + (f" + LoRA adapter from {adapter_path}" if adapter_path else "") + "...")
+    model, tokenizer = load_local_model(base_model, str(adapter_path) if adapter_path else None)
 
     # Load questions
-    suite_file = Path(__file__).parent / "cane_personality" / "suites" / "default.yaml"
+    suite_file = base_dir / "cane_personality" / "suites" / "default.yaml"
     suite = yaml.safe_load(open(suite_file, encoding="utf-8"))
     all_questions = suite["tests"]
-    # Filter to groundedness only if --groundedness flag
-    if "--groundedness" in sys.argv:
+
+    if args.groundedness:
         questions = [q for q in all_questions if "groundedness" in q.get("tags", [])]
         print(f"Filtered to {len(questions)} groundedness questions\n")
     else:
@@ -157,13 +208,9 @@ def main():
         question = q["question"]
         expected = q["expected_answer"]
 
-        # Generate locally
         answer = generate_local(model, tokenizer, question)
-
-        # Judge via OpenRouter
         scores = judge_response(client, question, expected, answer)
         overall = scores.get("overall_score", 50)
-        status = scores.get("status", "warn").upper()
 
         results.append({
             "index": i,
@@ -171,7 +218,7 @@ def main():
             "agent_answer": answer,
             "expected_answer": expected,
             "score": overall,
-            "status": status.lower(),
+            "status": scores.get("status", "warn").lower(),
             "criteria_scores": {
                 "accuracy": scores.get("accuracy", 50),
                 "completeness": scores.get("completeness", 50),
@@ -189,7 +236,7 @@ def main():
 
     output = {
         "suite_name": suite.get("name", "Personality Probe"),
-        "model_name": f"{base_model} + DPO",
+        "model_name": f"{base_model}" + (" + DPO" if adapter_path else ""),
         "total_results": len(results),
         "results": results,
     }
@@ -199,7 +246,7 @@ def main():
         json.dump(output, f, indent=2, ensure_ascii=False)
 
     print(f"\n{'='*60}")
-    print(f"  Model: {base_model} + DPO adapter")
+    print(f"  Model: {base_model}" + (" + DPO adapter" if adapter_path else ""))
     print(f"  Average: {avg:.1f}")
     print(f"  Fails: {fails}")
     print(f"  Saved: {out_file}")

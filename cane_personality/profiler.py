@@ -189,48 +189,41 @@ def extract_contrastive_pairs(
     high_threshold: float = 80,
     low_threshold: float = 40,
 ) -> list[ContrastivePair]:
-    """Extract contrastive pairs: confidently right vs. confidently wrong."""
-    confident_right = [
-        r for r in embedded_results
-        if r.score >= high_threshold and r.traits.get("hedging", 50) < 40
-    ]
-    confident_wrong = [
-        r for r in embedded_results
-        if r.score <= low_threshold and r.traits.get("hedging", 50) < 40
-    ]
+    """Extract contrastive pairs: low-scoring model answers vs. expected answers.
 
+    For each question where the model scored <= low_threshold, pairs the model's
+    bad answer against the suite's expected_answer as the gold "chosen" response.
+    This ensures every model gets DPO pairs proportional to its failure count.
+    """
     all_trait_keys = [
         "overconfidence", "calibration", "hedging",
         "verbosity", "groundedness", "completeness",
     ]
 
     pairs = []
-    for wrong in confident_wrong:
-        best = None
-        for right in confident_right:
-            if right.question == wrong.question:
-                best = right
-                break
-        if best is None:
-            continue  # No valid match, skip rather than pairing unrelated questions
+    for r in embedded_results:
+        if r.score > low_threshold:
+            continue
+        if not r.expected_answer or not r.agent_answer:
+            continue
 
-        # Determine trait tag from the wrong result's worst trait
+        # Determine trait tag from the result's worst trait
         worst_trait = ""
-        if wrong.traits:
+        if r.traits:
             worst_trait = max(
                 all_trait_keys,
-                key=lambda t: wrong.traits.get(t, 0),
+                key=lambda t: r.traits.get(t, 0),
                 default="",
             )
 
         pairs.append(ContrastivePair(
-            question=wrong.question,
-            confident_right=best.agent_answer,
-            confident_wrong=wrong.agent_answer,
-            right_score=best.score,
-            wrong_score=wrong.score,
-            right_embedding=best.embedding,
-            wrong_embedding=wrong.embedding,
+            question=r.question,
+            confident_right=r.expected_answer,
+            confident_wrong=r.agent_answer,
+            right_score=100.0,
+            wrong_score=r.score,
+            right_embedding=r.embedding,
+            wrong_embedding=r.embedding,
             trait_tag=worst_trait,
         ))
 

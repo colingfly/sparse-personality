@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cane Personality Comparison</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #e0e0e0; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 24px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .subtitle { color: #888; font-size: 14px; margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+  th, td { padding: 10px 16px; text-align: center; }
+  tr { border-bottom: 1px solid #222; }
+  .card { background: #141414; border: 1px solid #222; border-radius: 12px; padding: 20px; margin: 24px 0; }
+  #radar { width: 100%; height: 500px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Model Behavioral Comparison</h1>
+  <div class="subtitle">6 models | 6 traits | cane-personality</div>
+
+  <div class="card">
+    <table>
+      <thead><tr><th></th><th style="color:#fff;font-size:16px;padding:8px 16px">deepseek_v3</th><th style="color:#fff;font-size:16px;padding:8px 16px">intellect3</th><th style="color:#fff;font-size:16px;padding:8px 16px">olmo2</th><th style="color:#fff;font-size:16px;padding:8px 16px">qwen25</th><th style="color:#fff;font-size:16px;padding:8px 16px">qwen25_7b</th><th style="color:#fff;font-size:16px;padding:8px 16px">trinity_large_thinking</th></tr></thead>
+      <tbody>
+        <tr><td style="color:#aaa;text-align:right;padding-right:16px">overconfidence</td><td style="color:#ff6b6b;">6.2</td><td style="color:#ff6b6b;">6.8</td><td style="color:#ff6b6b;font-weight:700;">3.3</td><td style="color:#ff6b6b;">3.8</td><td style="color:#ff6b6b;">6.0</td><td style="color:#ff6b6b;">4.6</td></tr><tr><td style="color:#aaa;text-align:right;padding-right:16px">calibration</td><td style="color:#51cf66;">90.9</td><td style="color:#51cf66;">89.3</td><td style="color:#51cf66;">92.4</td><td style="color:#51cf66;font-weight:700;">92.8</td><td style="color:#51cf66;">89.3</td><td style="color:#51cf66;">92.4</td></tr><tr><td style="color:#aaa;text-align:right;padding-right:16px">verbosity</td><td style="color:#ffd43b;">99.0</td><td style="color:#ffd43b;">97.3</td><td style="color:#ffd43b;">95.9</td><td style="color:#ffd43b;">93.9</td><td style="color:#ffd43b;">94.8</td><td style="color:#ffd43b;font-weight:700;">93.2</td></tr><tr><td style="color:#aaa;text-align:right;padding-right:16px">hedging</td><td style="color:#ff922b;font-weight:700;">7.4</td><td style="color:#ff922b;">7.5</td><td style="color:#ff922b;">8.5</td><td style="color:#ff922b;">9.4</td><td style="color:#ff922b;">11.1</td><td style="color:#ff922b;">8.5</td></tr><tr><td style="color:#aaa;text-align:right;padding-right:16px">groundedness</td><td style="color:#748ffc;">90.2</td><td style="color:#748ffc;">88.4</td><td style="color:#748ffc;">90.6</td><td style="color:#748ffc;">90.8</td><td style="color:#748ffc;">87.5</td><td style="color:#748ffc;font-weight:700;">91.5</td></tr><tr><td style="color:#aaa;text-align:right;padding-right:16px">completeness</td><td style="color:#20c997;">88.9</td><td style="color:#20c997;">86.8</td><td style="color:#20c997;">86.9</td><td style="color:#20c997;">86.9</td><td style="color:#20c997;">83.9</td><td style="color:#20c997;font-weight:700;">89.5</td></tr>
+        <tr style="border-top:2px solid #333"><td style="color:#aaa;text-align:right;padding-right:16px">Grade</td><td style="color:#51cf66;font-weight:700;font-size:24px">A</td><td style="color:#51cf66;font-weight:700;font-size:24px">A</td><td style="color:#51cf66;font-weight:700;font-size:24px">A</td><td style="color:#51cf66;font-weight:700;font-size:24px">A</td><td style="color:#51cf66;font-weight:700;font-size:24px">A</td><td style="color:#51cf66;font-weight:700;font-size:24px">A</td></tr>
+        <tr><td style="color:#aaa;text-align:right;padding-right:16px">Steering Vectors</td><td style="color:#aaa">0</td><td style="color:#aaa">0</td><td style="color:#aaa">0</td><td style="color:#aaa">0</td><td style="color:#aaa">0</td><td style="color:#aaa">0</td></tr>
+        <tr><td style="color:#aaa;text-align:right;padding-right:16px">DPO Pairs</td><td style="color:#aaa">0</td><td style="color:#aaa">0</td><td style="color:#aaa">0</td><td style="color:#aaa">0</td><td style="color:#aaa">0</td><td style="color:#aaa">0</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div id="radar"></div>
+  </div>
+</div>
+
+<script>
+Plotly.newPlot('radar', [{
+            type: 'scatterpolar',
+            r: [6.2,90.9,99.0,7.4,90.2,88.9,6.2],
+            theta: ["overconfidence","calibration","verbosity","hedging","groundedness","completeness","overconfidence"],
+            fill: 'toself',
+            fillcolor: '#748ffc22',
+            line: {color: '#748ffc'},
+            name: 'deepseek_v3',
+        },{
+            type: 'scatterpolar',
+            r: [6.8,89.3,97.3,7.5,88.4,86.8,6.8],
+            theta: ["overconfidence","calibration","verbosity","hedging","groundedness","completeness","overconfidence"],
+            fill: 'toself',
+            fillcolor: '#51cf6622',
+            line: {color: '#51cf66'},
+            name: 'intellect3',
+        },{
+            type: 'scatterpolar',
+            r: [3.3,92.4,95.9,8.5,90.6,86.9,3.3],
+            theta: ["overconfidence","calibration","verbosity","hedging","groundedness","completeness","overconfidence"],
+            fill: 'toself',
+            fillcolor: '#ff6b6b22',
+            line: {color: '#ff6b6b'},
+            name: 'olmo2',
+        },{
+            type: 'scatterpolar',
+            r: [3.8,92.8,93.9,9.4,90.8,86.9,3.8],
+            theta: ["overconfidence","calibration","verbosity","hedging","groundedness","completeness","overconfidence"],
+            fill: 'toself',
+            fillcolor: '#ffd43b22',
+            line: {color: '#ffd43b'},
+            name: 'qwen25',
+        },{
+            type: 'scatterpolar',
+            r: [6.0,89.3,94.8,11.1,87.5,83.9,6.0],
+            theta: ["overconfidence","calibration","verbosity","hedging","groundedness","completeness","overconfidence"],
+            fill: 'toself',
+            fillcolor: '#20c99722',
+            line: {color: '#20c997'},
+            name: 'qwen25_7b',
+        },{
+            type: 'scatterpolar',
+            r: [4.6,92.4,93.2,8.5,91.5,89.5,4.6],
+            theta: ["overconfidence","calibration","verbosity","hedging","groundedness","completeness","overconfidence"],
+            fill: 'toself',
+            fillcolor: '#ff922b22',
+            line: {color: '#ff922b'},
+            name: 'trinity_large_thinking',
+        }], {
+  polar: {
+    bgcolor: '#141414',
+    radialaxis: { visible: true, range: [0, 100], color: '#444', gridcolor: '#222' },
+    angularaxis: { color: '#aaa', gridcolor: '#222' },
+  },
+  paper_bgcolor: '#141414',
+  font: { color: '#e0e0e0', size: 12 },
+  margin: { l: 60, r: 60, t: 40, b: 40 },
+  legend: { font: { color: '#e0e0e0' } },
+});
+</script>
+</body>
+</html>
